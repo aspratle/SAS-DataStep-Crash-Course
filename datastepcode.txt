@@ -1,0 +1,140 @@
+/*Basic Syntax for Data Steps
+
+DATA newdata; 
+<other statements>;
+RUN;
+
+*/
+
+/*Creating a library 
+Library should be called course under the libraries on the left hand side
+Your u44796916 will be different */ 
+
+libname course '/home/u44796916/Course_Data';
+run; 
+
+/* Reading in non-sas files 
+Example is .csv */  
+
+proc import datafile='/home/u44796916/titantic.csv'
+	out = work.titanic /*these two lines are options not statements*/
+	dbms = csv;
+run; 
+
+
+/* Creating Vars */
+data example; 
+	set sashelp.baseball; 
+	Salary_Full = salary * 1000; 
+run; 
+
+/*Create a Date Var */ 
+
+data air_year; 
+	set sashelp.air; 
+	Year = Year(Date);
+run; 
+
+
+
+/* Same step above but using infile/input statements
+also includes a length statement */ 
+
+data titanic2; 
+	infile '/home/u44796916/titantic.csv' delimiter=','
+	firstobs=2 DSD;
+	length name $50;
+	input PassengerID $ Survived PClass Name $; 
+run; 
+
+/* RETAIN statement to reorder variables */
+
+data reorder_cars;
+	retain mpg_highway mpg_city make; 
+	set sashelp.cars;
+run; 
+
+
+/* Creating Vars */ 
+data air_test; 
+	set sashelp.air; 
+	Year = Year(Date); *using the Year function;
+run;
+
+/* Informats */
+
+data mri;
+	format MRI_Date MMDDYY7.; 
+	infile '/home/u44796916/MRI.txt' delimiter=' ' firstobs=2; 
+	input Patient_ID $4. MRI_Date MMDDYY7.; 
+run; 
+
+/*Functions*/ 
+/*Sum function adds up these columns together -- try another function*/
+data test_fish; 
+	set sashelp.fish; 
+	Total_Len = sum(Length1, Length2, Length3);
+run; 
+
+/*Round function -- rounds numbers */
+data test_fish; 
+	set sashelp.fish; 
+	Width = round(Width);
+run; 
+
+/*Concatenation functions -- notice the difference between the outputs */
+data test_cars; 
+	set sashelp.cars; 
+	Make_Model_Cats = cats(Make, Model); 
+	Make_Model_Catx = catx(' ', Make, Model);
+run; 
+
+/* Input/Put Functions */
+data test_fx; 
+	input ID Age $ Salary; 
+datalines;
+1001 37 51250
+1002 52 63100
+;
+run; 
+
+/*Put can take in a number and turn it into a character */
+data new_test; 
+	set test_fx; 
+	new_ID = put(ID, $4.);
+	drop ID; 
+run; 
+
+/* Keep/Drop Options */ 
+
+data test_class; 
+	set sashelp.class; 
+run; 
+
+/* Conditional Statements */ 
+
+data asia europe other; 
+	set sashelp.cars;
+	if origin ='Asia' then output asia;
+	else if origin = 'Europe' then output europe;
+	else output other; 
+run; 
+
+data country_filter; 
+	retain Origin US_Flag;
+	set sashelp.cars; 
+	if origin = 'USA' then US_Flag = 1; 
+	else US_Flag = 0; 
+run; 
+
+/* DO Statements */ 
+
+data do_example; 
+	set sashelp.cars; 
+	if origin = 'USA' then
+	do; 
+		Domestic = 1; 
+		New_Origin = 'United States'; 
+	end;
+	else Domestic = 0;
+run; 
